@@ -52,12 +52,12 @@ namespace NeoContract1 {
                                 </form>
 
 
-                                <h4>AVM (in hex):</h4>
-                                <textarea id="codeavm" name="codeavm" readonly="readonly" rows="5" cols="100" placeholder="AVM (in hex)" class="form-control"></textarea>
+                                <h4>AVM (in hex) - editable:</h4>
+                                <textarea id="codeavm" name="codeavm" rows="5" cols="100" placeholder="AVM (in hex)" class="form-control">51c56b6c766b00527ac46c766b00c30114a263050061f06c766b00c3616c7566</textarea>
                                 ScriptHash: <input type="text" id="contracthash" placeholder="ScriptHash" size="50" readonly></input><br/>
                                 Address: <input type="text" id="contractAddress" placeholder="Address" size="50" readonly></input>
 
-                                <button id="dappgrambtn" style="margin-top: 5px;" class="btn btn-success" data-toggle="modal" onclick="createAccount()">Generate Dapp Fluxogram</button>
+                                <button id="dappgrambtn" style="margin-top: 5px;" class="btn btn-success" data-toggle="modal" onclick="createDappgram()">Generate Dapp Fluxogram</button>
 
                                 <div id="diagram"></div>
 
@@ -112,30 +112,27 @@ namespace NeoContract1 {
 
         });
 
-        function createAccount()
+        function createAccount() {
+          invokeRemoteCompiler($("#compilerServicesPath")[0].value);
+        }
+
+        function createDappgram()
         {
-          console.log("generating smart account on C#");
-          var json_code = "";
-          if( $("#singleSigCode.tab-pane.active.cont").length != 0) {
-            //console.log("SINGLE!");
-            json_code = ace.edit("editorSingleSig").getSession().getValue();
-          }
-          else {
-            //console.log("MULTI!");
-            json_code = ace.edit("editorMultiSig").getSession().getValue();
-          }
+          console.log("generating smart account fluxogram");
 
-          var smaccoConfig = JSON.parse(json_code);
-          var smaccoParser = new smacco.Smacco(smaccoConfig);
-          csharpSmaccoCode.getSession().setValue( smaccoParser.csGenerateAccount() );
+          var avm = $("#codeavm").val();
 
-          $("#code_cs").val( ace.edit("csharpSmaccoCode").getSession().getValue() );
+          const AvmOptimizer = avmoptimizer.AvmOptimizer;
+          var ops = [];
+          AvmOptimizer.parseOpcodeList(avm, ops);
+          AvmOptimizer.computeJumpsFrom(ops);
+          var opsJump = AvmOptimizer.parseJumpList(ops);
+          var opsModules = AvmOptimizer.breakAllJumpModules(opsJump);
 
-          var flowchartCode = smaccoParser.generateFlowChart();
+          var flowchartCode = AvmOptimizer.generateFlowChartFromModules(opsModules, opsJump, ops, false);
           console.log("flowchart.js code:\n"+flowchartCode);
           createAccountFlowchart( flowchartCode );
 
-          invokeRemoteCompiler($("#compilerServicesPath")[0].value);
         }
 
         function setExampleSingle( selected_index ) {
