@@ -1,0 +1,286 @@
+  <div class="container-fluid">
+
+    <!-- ======================================================== -->
+    <!-- ======================================================== -->
+    <!-- ======================================================== -->
+
+        <!-- ======================================================== -->
+        <!-- BEGIN DIV MAIN CONTENTS - EVERYTHING IS HERE - I -->
+        <div class="col-sm-10">
+                    <div class="panel panel-success">
+                        <div class="panel-heading">Welcome to Neo Dappgram - Drawing Fluxograms for Neo Dapps</div>
+                        <div class="panel-body">
+                                <!-- /////////////////////////////////////////////////////////////////// -->
+                                Neo Compiler Services: <input id="compilerServicesPath" type="text" value="https://compilers.neocompiler.io" placeholder="Neo Compiler Services" size="40"/><br/>
+                                <button id="compilebtn" style="margin-top: 5px;" class="btn btn-success" data-toggle="modal" onclick="createAccount()">Online Compile</button>
+
+
+                                <div class="tab-container">
+                                  <ul class="nav nav-tabs" id="compilersnavtabs">
+                                      <li class="active"><a data-target="#csharpSmaccoCode" data-toggle="tab">C#</a></li>
+                                  </ul>
+                                    <div class="tab-content">
+                                        <div class="tab-pane active cont" id="csharpSmaccoCode">
+                                                <pre id="csharpSmaccoCode">
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services.Neo;
+using Neo.SmartContract.Framework.Services.System;
+namespace NeoContract1 {
+  public class Contract1 : SmartContract {
+    public static readonly byte[] pubkey_0 = "036245f426b4522e8a2901be6ccc1f71e37dc376726cc6665d80c5997e240568fb".HexToBytes();
+    public static bool Main(byte[] signature) {
+      return (VerifySignature(signature, pubkey_0));
+    }
+    }
+                                                </pre>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <h4>SMACCO Compiler Output:</h4>
+                                <!-- end common submit button -->
+                                <!-- /////////////////////////////////////////////////////////////////// -->
+
+                                <textarea id="codewarnerr" readonly="readonly" rows="7" cols="100" placeholder="Warning/Errors in code..." class="form-control"></textarea>
+
+
+                                <form id="compilerServicesForm"  method="post">
+                                  <input type="hidden" id="code_cs" name="codesend_cs"/>
+                                  <select name="compilers_versions" id="compilers_versions-selection-box" class="custom-select form-control">
+                                    <option value="latest">latest</option>
+                                  </select>
+                                </form>
+
+
+                                <h4>AVM (in hex):</h4>
+                                <textarea id="codeavm" name="codeavm" readonly="readonly" rows="5" cols="100" placeholder="AVM (in hex)" class="form-control"></textarea>
+                                ScriptHash: <input type="text" id="contracthash" placeholder="ScriptHash" size="50" readonly></input><br/>
+                                Address: <input type="text" id="contractAddress" placeholder="Address" size="50" readonly></input>
+
+                                <button id="dappgrambtn" style="margin-top: 5px;" class="btn btn-success" data-toggle="modal" onclick="createAccount()">Generate Dapp Fluxogram</button>
+
+                                <div id="diagram"></div>
+
+                                <br/><br/><br/>
+                                <p>Get Neo Dappgram source-code at: <a href="https://github.com/neoresearch/neo-dappgram">https://github.com/neoresearch/neo-dappgram</a></p>
+                                <p>Get webpage source-code at: <a href="https://github.com/neoresearch/dappgram-web">https://github.com/neoresearch/dappgram-web</a></p>
+                                <br/>
+                                <p><a href="https://neoresearch.io">NeoResearch</a> group - Copyleft 2018 - MIT License</p>
+                            <!-- end of compilex form -->
+                            <!-- /////////////////////////////////////////////////////////////////// -->
+                        </div>   <!-- end of panel body -->
+                    </div>
+      <!-- END DIV MAIN CONTENTS - EVERYTHING WAS INSIDE HERE - II-->
+      <!-- ======================================================== -->
+      <!-- ======================================================== -->
+
+  </div> <!-- end col -->
+  <!-- END DIV MAIN CONTENTS - EVERYTHING WAS INSIDE HERE - I -->
+  <!-- ======================================================== -->
+  <!-- ======================================================== -->
+
+  </div> <!-- end row -->
+  <!-- BEGIN DIV MAIN CONTENTS - MENU AND CONTENT -->
+  <!-- ======================================================== -->
+  <!-- ======================================================== -->
+  <!-- ======================================================== -->
+
+    <script src="public/js/common/neoEditorScripts.js"></script>
+
+    <script>
+        //var editorMultiSig = createEditor("editorMultiSig", "ace/mode/json");
+        //var editorSingleSig = createEditor("editorSingleSig", "ace/mode/json");
+        var csharpSmaccoCode = createEditor("csharpSmaccoCode", "ace/mode/csharp");
+        //csharpSmaccoCode.setOptions({readOnly: true});
+        var hrefBase = document.location.href;
+        if(hrefBase[hrefBase.length-2]=="#")
+          hrefBase = hrefBase.substr(0,hrefBase.length-3);
+        var singleExampleFiles = [
+            //["https://raw.githubusercontent.com/NeoResearch/examples-csharp/master/HelloWorld/HelloWorld.cs"],
+            [hrefBase+"/examples/single/SingleCheckSig.json"],
+            [hrefBase+"/examples/single/SingleTimeLock.json"],
+            [hrefBase+"/examples/single/Charity.json"]
+        ];
+
+        var arrayExampleFiles = [
+            //["https://raw.githubusercontent.com/NeoResearch/examples-csharp/master/HelloWorld/HelloWorld.cs"],
+            [hrefBase+"/examples/array/ArrayMultiSig.json"]
+        ];
+
+        //Check current webpage and starts with localhost or neocompiler public website
+        $(document).ready(function(){
+
+        });
+
+        function createAccount()
+        {
+          console.log("generating smart account on C#");
+          var json_code = "";
+          if( $("#singleSigCode.tab-pane.active.cont").length != 0) {
+            //console.log("SINGLE!");
+            json_code = ace.edit("editorSingleSig").getSession().getValue();
+          }
+          else {
+            //console.log("MULTI!");
+            json_code = ace.edit("editorMultiSig").getSession().getValue();
+          }
+
+          var smaccoConfig = JSON.parse(json_code);
+          var smaccoParser = new smacco.Smacco(smaccoConfig);
+          csharpSmaccoCode.getSession().setValue( smaccoParser.csGenerateAccount() );
+
+          $("#code_cs").val( ace.edit("csharpSmaccoCode").getSession().getValue() );
+
+          var flowchartCode = smaccoParser.generateFlowChart();
+          console.log("flowchart.js code:\n"+flowchartCode);
+          createAccountFlowchart( flowchartCode );
+
+          invokeRemoteCompiler($("#compilerServicesPath")[0].value);
+        }
+
+        function setExampleSingle( selected_index ) {
+            console.log("selecting single example:"+selected_index);
+            editorSingleSig.getSession().setValue("");
+      		  getfileSingle(selected_index, 0);
+        }
+
+        function setExampleMulti( selected_index ) {
+            console.log("selecting multi example:"+selected_index);
+            editorMultiSig.getSession().setValue("");
+      		  getfileMulti(selected_index, 0);
+        }
+
+        	 function getfileSingle(selected_index, index=0) {
+        		 var numfiles = singleExampleFiles[selected_index].length;
+        		 if(index < numfiles) {
+        		 	var file = singleExampleFiles[selected_index][index];
+        			console.log("getting single example file: "+file);
+        			$.get(file, function (data) {
+        			 	editorSingleSig.getSession().setValue( editorSingleSig.getSession().getValue() + data);
+        				getfileSingle(selected_index, index+1);
+        			}, 'text');
+        	 	 }
+        	 }
+
+           function getfileMulti(selected_index, index=0) {
+        		 var numfiles = arrayExampleFiles[selected_index].length;
+        		 if(index < numfiles) {
+        		 	var file = arrayExampleFiles[selected_index][index];
+        			console.log("getting multi example file: "+file);
+        			$.get(file, function (data) {
+        			 	editorMultiSig.getSession().setValue( editorMultiSig.getSession().getValue() + data);
+        				getfileMulti(selected_index, index+1);
+        			}, 'text');
+        	 	 }
+        	 }
+    //===============================================================
+
+    function createAccountFlowchart( flowchart_code ) {
+      var diagram = flowchart.parse(flowchart_code);
+      $("#diagram")[0].innerHTML="";
+      diagram.drawSVG('diagram', {
+                                  'x': 0,
+                                  'y': 0,
+                                  'line-width': 3,
+                                  'line-length': 50,
+                                  'text-margin': 10,
+                                  'font-size': 14,
+                                  'font-color': 'black',
+                                  'line-color': 'black',
+                                  'element-color': 'black',
+                                  'fill': 'white',
+                                  'yes-text': 'yes',
+                                  'no-text': 'no',
+                                  'arrow-end': 'block',
+                                  'scale': 1,
+                                  // style symbol types
+                                  'symbols': {
+                                    'start': {
+                                      'font-color': 'red',
+                                      'element-color': 'green',
+                                      'fill': 'yellow'
+                                    },
+                                    'end':{
+                                      'class': 'end-element'
+                                    }
+                                  },
+                                  // even flowstate support ;-)
+                                  'flowstate' : {
+                                    'past' : { 'fill' : '#CCCCCC', 'font-size' : 12},
+                                    'current' : {'fill' : 'yellow', 'font-color' : 'red', 'font-weight' : 'bold'},
+                                    'future' : { 'fill' : '#FFFF99'},
+                                    'request' : { 'fill' : 'blue'},
+                                    'invalid': {'fill' : '#444444'},
+                                    'approved' : { 'fill' : '#58C4A3', 'font-size' : 12, 'yes-text' : 'APPROVED', 'no-text' : 'n/a' },
+                                    'rejected' : { 'fill' : '#C45879', 'font-size' : 12, 'yes-text' : 'n/a', 'no-text' : 'REJECTED' }
+                                  }
+                                });
+    }
+
+    // ==============================================================
+        function invokeRemoteCompiler(compilerServicesPath)
+        {
+            console.log("will compile on: '"+compilerServicesPath+"'");
+            var indata = $("#compilerServicesForm").serialize();
+            $("#codeavm").val("");
+            $("#contracthash").val("");
+            $("#contractAddress").val("");
+            $("#codewarnerr").val("remote compiling on "+compilerServicesPath+"...");
+            $.post(
+              compilerServicesPath + "/compilex",
+              indata, // Serializes form data in standard format
+              function (data) {
+                  console.log("finished compiling");
+                  var coderr = atob(data.output);
+                  $("#codewarnerr").val(coderr);
+                  var hexcodeavm = atob(data.avm);
+                  hexcodeavm = hexcodeavm.replace(/(\r\n|\n|\r)/gm, "");
+                  var scriptHash = "";
+                  var scriptAddress = "";
+                  if(hexcodeavm != "") {
+                    scriptHash = getScriptHashFromAVM(hexcodeavm);
+                    scriptAddress = Neon.wallet.getAddressFromScriptHash(scriptHash);
+                  }
+                  $("#codeavm").val(hexcodeavm);
+                  $("#contracthash").val( scriptHash );
+                  $("#contractAddress").val( scriptAddress );
+
+                }, "json");
+        }
+        //The first call is done here as default
+        updateCompilersSelectionBox("docker-mono-neo-compiler");
+        function updateCompilersSelectionBox(compilerType)
+        {
+          console.log("test");
+          console.log("will compile on: '"+$("#compilerServicesPath")[0].value+'/getcompilers');
+          $.get($("#compilerServicesPath")[0].value+'/getcompilers',
+              function (data) {
+              compilerSelectionBoxID = "compilers_versions-selection-box";
+              compilerSelectionBoxObj = document.getElementById(compilerSelectionBoxID);
+              compilerSelectionBoxObj.options.length = 0;
+              console.log(data)
+
+              for(c = 0; c < data.length; c++)
+              {
+                if(data[c].compiler == compilerType)
+                  addOptionToSelectionBox(data[c].version,compilerType +":"+data[c].version,compilerSelectionBoxID);
+              }
+              //Select the latest as default
+              compilerSelectionBoxObj.selectedIndex = (compilerSelectionBoxObj.length -1)
+           },
+           "json" // The format the response should be in
+           );
+        }
+
+        //============= ADD OPTION TO SELECTION BOX =====================
+        function addOptionToSelectionBox(textToOption,valueToOption,walletSelectionBox){
+                  var option = document.createElement("option");
+                  option.text = textToOption;
+                  option.value = valueToOption;
+                  var select = document.getElementById(walletSelectionBox);
+                  select.appendChild(option);
+        }
+        //===============================================================
+
+    </script>
+</div>

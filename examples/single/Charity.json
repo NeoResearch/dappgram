@@ -1,0 +1,49 @@
+{
+  "standard": "smacco-1.0",
+  "input_type": "single",
+  "pubkey_list": [
+    "031a6c6fbbdf02ca351745fa86b9ba5a9452d785ac4f7fc2b7548ca2a46c4fcf4a",
+    "036245f426b4522e8a2901be6ccc1f71e37dc376726cc6665d80c5997e240568fb"
+  ],
+  "rules": [
+    {
+      "rule_type": "ALLOW_IF",
+      "condition": {
+        "condition_type": "CHECKSIG",
+        "pubkey": "0"
+      }
+    },
+    {
+      "rule_type": "ALLOW_IF",
+      "condition": {
+        "condition_type": "AND",
+        "conditions": [
+          {
+            "condition_type": "CHECKSIG",
+            "pubkey": "1"
+          },
+          {
+            "condition_type": "OR",
+            "conditions": [
+              {
+                "condition_type": "AND",
+                "conditions": [
+                  {
+                    "condition_type": "SELF_TRANSFER"
+                  },
+                  {
+                    "condition_type": "ONLY_NEO"
+                  }
+                ]
+              },
+              {
+                "condition_type": "ONLY_GAS"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "default_rule": "DENY_ALL"
+}
