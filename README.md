@@ -9,7 +9,7 @@ The idea is to provide fluxogram diagram for Neo Dapps. This allows public drawi
 
 This project is publicly available at https://neoresearch.io/dappgram-web
 
-If you are looking for neo-dappgram source-code, take a look at: github.com/neoresearch/neo-dappgram
+If you are looking for dappgram source-code generation, take a look at: github.com/neoresearch/neo-avm-optimizer
 
 ## ideas
 
