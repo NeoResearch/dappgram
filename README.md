@@ -1,4 +1,4 @@
-# dappgram-web
+# dappgram
 Neo Dappgram - Web demo
 
 DappGram: fluxograms for Neo Dapps
@@ -7,7 +7,7 @@ Thanks to @Shargon devil mind, I suddently have another project... hope that sta
 
 The idea is to provide fluxogram diagram for Neo Dapps. This allows public drawing of fluxograms for Neo AVM.
 
-This project is publicly available at https://neoresearch.io/dappgram-web
+This project is publicly available at https://neoresearch.io/dappgram
 
 If you are looking for dappgram source-code generation, take a look at: github.com/neoresearch/neo-avm-optimizer
 
