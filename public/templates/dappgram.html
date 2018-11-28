@@ -12,32 +12,37 @@
                         <div class="panel-body">
                                 <!-- /////////////////////////////////////////////////////////////////// -->
                                 Neo Compiler Services: <input id="compilerServicesPath" type="text" value="https://compilers.neocompiler.io" placeholder="Neo Compiler Services" size="40"/><br/>
+                                <div class="tab-container">
                                 <button id="compilebtn" style="margin-top: 5px;" class="btn btn-success" data-toggle="modal" onclick="createAccount()">Online Compile</button>
 
-
-                                <div class="tab-container">
                                   <ul class="nav nav-tabs" id="compilersnavtabs">
                                       <li class="active"><a data-target="#csharpSmaccoCode" data-toggle="tab">C#</a></li>
                                   </ul>
                                     <div class="tab-content">
                                         <div class="tab-pane active cont" id="csharpSmaccoCode">
                                                 <pre id="csharpSmaccoCode">
+
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
 using Neo.SmartContract.Framework.Services.System;
-namespace NeoContract1 {
-  public class Contract1 : SmartContract {
-    public static readonly byte[] pubkey_0 = "036245f426b4522e8a2901be6ccc1f71e37dc376726cc6665d80c5997e240568fb".HexToBytes();
-    public static bool Main(byte[] signature) {
-      return (VerifySignature(signature, pubkey_0));
-    }
-    }
+
+namespace NeoContract1
+{
+  public class Contract1 : SmartContract
+  {
+      public static readonly byte[] pubkey_0 = "036245f426b4522e8a2901be6ccc1f71e37dc376726cc6665d80c5997e240568fb".HexToBytes();
+      public static bool Main(byte[] signature)
+      {
+        return (VerifySignature(signature, pubkey_0));
+      }
+  }
+}
                                                 </pre>
                                     </div>
                                   </div>
                                 </div>
 
-                                <h4>SMACCO Compiler Output:</h4>
+                                <h4>DAPPGRAM Compiler Output:</h4>
                                 <!-- end common submit button -->
                                 <!-- /////////////////////////////////////////////////////////////////// -->
 
@@ -85,35 +90,40 @@ namespace NeoContract1 {
   <!-- ======================================================== -->
   <!-- ======================================================== -->
   <!-- ======================================================== -->
-
-    <script src="public/js/common/neoEditorScripts.js"></script>
-
     <script>
-        //var editorMultiSig = createEditor("editorMultiSig", "ace/mode/json");
-        //var editorSingleSig = createEditor("editorSingleSig", "ace/mode/json");
+        function createEditor(name, mode) {
+            var editor = ace.edit(name);
+            editor.setTheme("ace/theme/clouds");
+            editor.session.setMode(mode);
+            editor.setAutoScrollEditorIntoView(true);
+            editor.setOptions({
+                enableBasicAutocompletion: true,
+                enableSnippets: true,
+                enableLiveAutocompletion: false,
+                maxLines: 30
+            });
+            editor.commands.addCommand({
+                name: "showKeyboardShortcuts",
+                bindKey: {win: "Ctrl-Alt-h", mac: "Command-Alt-h"},
+                exec: function (editor) {
+                    ace.config.loadModule("ace/ext/keybinding_menu", function (module) {
+                        module.init(editor);
+                        //editor.showKeyboardShortcuts() just shows when tigger the hotkey
+                    })
+                }
+            })
+            return editor
+        }
+
         var csharpSmaccoCode = createEditor("csharpSmaccoCode", "ace/mode/csharp");
         //csharpSmaccoCode.setOptions({readOnly: true});
-        var hrefBase = document.location.href;
-        if(hrefBase[hrefBase.length-2]=="#")
-          hrefBase = hrefBase.substr(0,hrefBase.length-3);
-        var singleExampleFiles = [
-            //["https://raw.githubusercontent.com/NeoResearch/examples-csharp/master/HelloWorld/HelloWorld.cs"],
-            [hrefBase+"/examples/single/SingleCheckSig.json"],
-            [hrefBase+"/examples/single/SingleTimeLock.json"],
-            [hrefBase+"/examples/single/Charity.json"]
-        ];
-
-        var arrayExampleFiles = [
-            //["https://raw.githubusercontent.com/NeoResearch/examples-csharp/master/HelloWorld/HelloWorld.cs"],
-            [hrefBase+"/examples/array/ArrayMultiSig.json"]
-        ];
-
         //Check current webpage and starts with localhost or neocompiler public website
         $(document).ready(function(){
 
         });
 
         function createAccount() {
+          $("#code_cs").val( ace.edit("csharpSmaccoCode").getSession().getValue() );
           invokeRemoteCompiler($("#compilerServicesPath")[0].value);
         }
 
@@ -133,44 +143,7 @@ namespace NeoContract1 {
           var flowchartCode = AvmOptimizer.generateFlowChartFromModules(opsModules, opsJump, ops, false);
           console.log("flowchart.js code:\n"+flowchartCode);
           createAccountFlowchart( flowchartCode );
-
         }
-
-        function setExampleSingle( selected_index ) {
-            console.log("selecting single example:"+selected_index);
-            editorSingleSig.getSession().setValue("");
-      		  getfileSingle(selected_index, 0);
-        }
-
-        function setExampleMulti( selected_index ) {
-            console.log("selecting multi example:"+selected_index);
-            editorMultiSig.getSession().setValue("");
-      		  getfileMulti(selected_index, 0);
-        }
-
-        	 function getfileSingle(selected_index, index=0) {
-        		 var numfiles = singleExampleFiles[selected_index].length;
-        		 if(index < numfiles) {
-        		 	var file = singleExampleFiles[selected_index][index];
-        			console.log("getting single example file: "+file);
-        			$.get(file, function (data) {
-        			 	editorSingleSig.getSession().setValue( editorSingleSig.getSession().getValue() + data);
-        				getfileSingle(selected_index, index+1);
-        			}, 'text');
-        	 	 }
-        	 }
-
-           function getfileMulti(selected_index, index=0) {
-        		 var numfiles = arrayExampleFiles[selected_index].length;
-        		 if(index < numfiles) {
-        		 	var file = arrayExampleFiles[selected_index][index];
-        			console.log("getting multi example file: "+file);
-        			$.get(file, function (data) {
-        			 	editorMultiSig.getSession().setValue( editorMultiSig.getSession().getValue() + data);
-        				getfileMulti(selected_index, index+1);
-        			}, 'text');
-        	 	 }
-        	 }
     //===============================================================
 
     function createAccountFlowchart( flowchart_code ) {
@@ -224,6 +197,7 @@ namespace NeoContract1 {
             $("#contracthash").val("");
             $("#contractAddress").val("");
             $("#codewarnerr").val("remote compiling on "+compilerServicesPath+"...");
+            console.log(indata);
             $.post(
               compilerServicesPath + "/compilex",
               indata, // Serializes form data in standard format
