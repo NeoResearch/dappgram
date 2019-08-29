@@ -16,11 +16,11 @@
                                 <button id="compilebtn" style="margin-top: 5px;" class="btn btn-success" data-toggle="modal" onclick="createAccount()">Online Compile</button>
 
                                   <ul class="nav nav-tabs" id="compilersnavtabs">
-                                      <li class="active"><a data-target="#csharpSmaccoCode" data-toggle="tab">C#</a></li>
+                                      <li class="active"><a data-target="#aceEditor" data-toggle="tab">C#</a></li>
                                   </ul>
-                                    <div class="tab-content">
-                                        <div class="tab-pane active cont" id="csharpSmaccoCode">
-                                                <pre id="csharpSmaccoCode">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                                <pre id="aceEditor">
 
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services.Neo;
@@ -38,7 +38,7 @@ namespace NeoContract1
   }
 }
                                                 </pre>
-                                    </div>
+                                        </div>
                                   </div>
                                 </div>
 
@@ -52,6 +52,7 @@ namespace NeoContract1
                                 <form id="compilerServicesForm"  method="post">
                                   <input type="hidden" id="code_cs" name="codesend_cs"/>
                                   <input type="checkbox" id="cbx_compatible" name="cbx_compatible" checked>Compatible</input><br/>
+                                  <input type="hidden" id="selected_compiler_form" name="codesend_selected_compiler"/>
                                   <select name="compilers_versions" id="compilers_versions-selection-box" class="custom-select form-control">
                                     <option value="latest">latest</option>
                                   </select>
@@ -71,7 +72,7 @@ namespace NeoContract1
                                 <p>Get Neo Dappgram source-code at: <a href="https://github.com/neoresearch/neo-avm-optimizer">https://github.com/neoresearch/neo-avm-optimizer</a></p>
                                 <p>Get webpage source-code at: <a href="https://github.com/neoresearch/dappgram-web">https://github.com/neoresearch/dappgram-web</a></p>
                                 <br/>
-                                <p><a href="https://neoresearch.io">NeoResearch</a> group - Copyleft 2018 - MIT License</p>
+                                <p><a href="https://neoresearch.io">NeoResearch</a> group - Copyleft 2018-2019 - MIT License</p>
                             <!-- end of compilex form -->
                             <!-- /////////////////////////////////////////////////////////////////// -->
                         </div>   <!-- end of panel body -->
@@ -115,15 +116,14 @@ namespace NeoContract1
             return editor
         }
 
-        var csharpSmaccoCode = createEditor("csharpSmaccoCode", "ace/mode/csharp");
-        //csharpSmaccoCode.setOptions({readOnly: true});
+        var aceEditor;
+        //aceEditor.setOptions({readOnly: true});
         //Check current webpage and starts with localhost or neocompiler public website
         $(document).ready(function(){
-
+            aceEditor = createEditor("aceEditor", "ace/mode/csharp");
         });
 
         function createAccount() {
-          $("#code_cs").val( ace.edit("csharpSmaccoCode").getSession().getValue() );
           invokeRemoteCompiler($("#compilerServicesPath")[0].value);
         }
 
@@ -192,11 +192,14 @@ namespace NeoContract1
         function invokeRemoteCompiler(compilerServicesPath)
         {
             console.log("will compile on: '"+compilerServicesPath+"'");
-            var indata = $("#compilerServicesForm").serialize();
             $("#codeavm").val("");
+            $("#code_cs").val("");
             $("#contracthash").val("");
             $("#contractAddress").val("");
-            $("#codewarnerr").val("remote compiling on "+compilerServicesPath+"...");
+            $("#codewarnerr").val("Remote compiling at "+compilerServicesPath+"...");
+            $("#code_cs").val(ace.edit("aceEditor").getSession().getValue());
+            $("#selected_compiler_form").val("csharp");
+            var indata = $("#compilerServicesForm").serialize();
             console.log(indata);
             $.post(
               compilerServicesPath + "/compilex",
@@ -238,7 +241,7 @@ namespace NeoContract1
                   addOptionToSelectionBox(data[c].version,compilerType +":"+data[c].version,compilerSelectionBoxID);
               }
               //Select the latest as default
-              compilerSelectionBoxObj.selectedIndex = (compilerSelectionBoxObj.length -1)
+              //compilerSelectionBoxObj.selectedIndex = (compilerSelectionBoxObj.length -1)
            },
            "json" // The format the response should be in
            );
